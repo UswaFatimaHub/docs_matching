@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: embedding-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn embedding_project.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
+      - key: MONGO_URI
+        value: your_mongodb_connection_string_here
+
+  - type: cron
+    name: embedding-cron
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/generate_embeddings.py
+    schedule: "0 */6 * * *"  # Every 6 hours
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
+      - key: MONGO_URI
+        value: your_mongodb_connection_string_here

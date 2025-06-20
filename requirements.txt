@@ -1,0 +1,6 @@
+django
+pymongo 
+sentence-transformers 
+numpy
+pandas
+python-dotenv
