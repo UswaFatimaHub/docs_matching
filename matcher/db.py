@@ -11,8 +11,11 @@ client = MongoClient(envvars.MONGO_URI)
 db = client[envvars.MONGO_DB]
 collection = db[envvars.MONGO_COLLECTION]
 
-
-
+def get_documents_without_embeddings():
+    query = {
+        "embedding": {"$exists": False}
+    }
+    return list(collection.find(query))
 
 def get_all_documents():
     query = {}
