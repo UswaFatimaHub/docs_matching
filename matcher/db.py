@@ -1,9 +1,11 @@
 from pymongo import MongoClient
 from bson import ObjectId
-import os
+import logging
+
 from env_config import envconfig
 
 envvars = envconfig()
+logger = logging.getLogger(__name__)
 
 
 
@@ -11,20 +13,27 @@ client = MongoClient(envvars.MONGO_URI)
 db = client[envvars.MONGO_DB]
 collection = db[envvars.MONGO_COLLECTION]
 
-def get_documents_without_embeddings():
-    query = {
-        "embedding": {"$exists": False}
-    }
-    return list(collection.find(query))
+def get_documents_without_embeddings_batch(skip: int = 0, limit: int = 1000):
+    logger.info(f"Fetching documents without embeddings, skip: {skip}, limit: {limit}")
+    return list(collection.find(
+        {
+            "status": "Published",
+            "embedding": {"$exists": False}
+        }
+    ).skip(skip).limit(limit))
 
-def get_all_documents():
-    query = {}
-    return list(collection.find(query))
+def get_documents_batch(skip: int = 0, limit: int = 10):
+    logger.info(f"Fetching documents, skip: {skip}, limit: {limit}")
+    return list(collection.find(
+        {"embedding": {"$exists": True}}
+    ).skip(skip).limit(limit))
 
 def insert_document(document, embedding):
+    logger.info(f"Inserting embedding for document with title: {document.get('title', 'No Title')}")
     collection.insert_one({"document": document, "embedding": embedding})
 
 def update_embedding_for_doc(doc_id, embedding):
+    logger.info(f"Updating embedding for document ID: {doc_id}")
     collection.update_one(
         {"_id": ObjectId(doc_id)},
         {"$set": {"embedding": embedding}}
