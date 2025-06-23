@@ -27,12 +27,15 @@ def get_top_matches(question: str, top_k: int = 5, batch_size: int = 1000):
                 continue
             score = cosine_similarity(question_embedding, doc["embedding"])
             result = {
-                "document_id": str(doc["_id"]),
-                "match_score": float(score),
-                "document": {
-                    "title": doc.get("title", ""),
-                    "summary": doc.get("summary", "")
-                }
+                "title": doc.get("title", ""),
+                "author": doc.get("author", ""),
+                "score": float(score),
+                "documentId": str(doc["_id"]),
+                "webUrl": doc.get("webUrl", ""),
+                "dislikeCount": doc.get("dislikeCount", 0),
+                "viewCount": doc.get("viewCount", 0),
+                "tags": doc.get("tags", []),
+                "modifiedTime": doc.get("modifiedTime", ""),
             }
             if len(heap) < top_k:
                 heapq.heappush(heap, (score, result))
@@ -44,3 +47,15 @@ def get_top_matches(question: str, top_k: int = 5, batch_size: int = 1000):
     # Return top_k in descending order
     logger.debug(f"Keeping top {top_k} matches")
     return [item[1] for item in sorted(heap, key=lambda x: x[0], reverse=True)]
+
+
+# add these in reponse
+# title
+# Author
+# score
+# documentId
+# webUrl
+# dislikeCount
+# viewCount
+# tags
+# modifiedTime

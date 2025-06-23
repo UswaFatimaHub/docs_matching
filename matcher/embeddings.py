@@ -1,11 +1,14 @@
 from sentence_transformers import SentenceTransformer
+from env_config import envconfig
+
+envvars = envconfig()
 
 _model = None
 
 def get_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        _model = SentenceTransformer(envvars.SENTENCE_TRANSFORMER_MODEL)
     return _model
 
 def encode_text(text: str):

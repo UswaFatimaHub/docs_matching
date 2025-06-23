@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    container_name: django_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - huggingface_cache:/root/.cache/huggingface
+      - sentence_transformers_cache:/root/.cache/torch/sentence_transformers
+    env_file:
+      - .env
+    command: gunicorn embedding_project.wsgi:application --bind 0.0.0.0:8000 --workers=2
+
+  scheduler:
+    build: .
+    container_name: django_scheduler
+    volumes:
+      - .:/app
+      - huggingface_cache:/root/.cache/huggingface
+      - sentence_transformers_cache:/root/.cache/torch/sentence_transformers
+    env_file:
+      - .env
+    command: python manage.py runapscheduler  
+    
+volumes:
+  huggingface_cache:
+  sentence_transformers_cache:

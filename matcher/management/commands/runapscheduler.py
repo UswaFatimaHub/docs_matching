@@ -4,28 +4,17 @@ from django.core.management.base import BaseCommand
 from apscheduler.schedulers.blocking import BlockingScheduler
 from matcher.embeddings import encode_text
 from matcher.db import get_documents_without_embeddings_batch, update_embedding_for_doc
+from bs4 import BeautifulSoup
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-# def run_embedding_sync():
-#     print("🔁 Running embedding sync job...")
-
-#     docs = get_documents_without_embeddings()
-#     updated = 0
-
-#     for doc in docs:
-#         if "embedding" not in doc:
-#             text = f"{doc.get('title', '')} {doc.get('summary', '')}".strip()
-#             if not text:
-#                 continue
-#             emb = encode_text(text).tolist()
-#             update_embedding_for_doc(doc["_id"], emb)
-#             updated += 1
-
-#     print(f"✅ Finished embedding sync. Updated {updated} documents.")
-
+def clean_html(html_text):
+    if not html_text:
+        return ""
+    soup = BeautifulSoup(html_text, "html.parser")
+    return soup.get_text(separator=" ", strip=True)
 
 def run_embedding_sync(batch_size=1000):
     logger.info("🌀 Starting embedding sync...")
@@ -39,18 +28,26 @@ def run_embedding_sync(batch_size=1000):
             break
 
         for doc in docs:
-            text = f"{doc.get('title', '')} {doc.get('summary', '')}".strip()
-            if not text:
+            title = doc.get("title", "")
+            summary = doc.get("summary", "")
+            answer_html = doc.get("answer", "")
+            tags = doc.get("tags", [])
+
+            cleaned_answer = clean_html(answer_html)
+            tags_text = " ".join(tags) if isinstance(tags, list) else ""
+
+            combined_text = f"{title} {summary} {cleaned_answer} {tags_text}".strip()
+            if not combined_text:
                 continue
-            embedding = encode_text(text).tolist()
+
+            embedding = encode_text(combined_text).tolist()
             update_embedding_for_doc(doc["_id"], embedding)
             updated_count += 1
 
-        skip += batch_size  # Move to next batch
+        skip += batch_size
+
     logger.info(f"✅ Sync complete. {updated_count} documents updated.")
     print(f"✅ [{datetime.now()}] Sync completed. Updated {updated_count} documents.")
-
-
 
 
 class Command(BaseCommand):
