@@ -14,23 +14,12 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
-COPY . .
+COPY . /app/
 
-# # Load env vars and preload model
-# RUN python -c "\
-# import os; \
-# from dotenv import load_dotenv; \
-# load_dotenv(); \
-# from sentence_transformers import SentenceTransformer; \
-# model = SentenceTransformer(os.getenv('SENTENCE_TRANSFORMER_MODEL', 'sentence-transformers/LaBSE'))"
+# Preload model
+RUN python scripts/download_model.py
 
 
-
-# Run using gunicorn
-CMD ["gunicorn", "embedding_project.wsgi:application", "--bind", "0.0.0.0:8000", "--workers=2"]
-
-# # Expose the port Django runs on
-# EXPOSE 8000
-
-# # Default command (runserver + optional cron)
-# CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000 && python manage.py runapscheduler"]
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+CMD ["/app/entrypoint.sh"]
