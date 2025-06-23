@@ -193,6 +193,9 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 .dockerignore
+push_image.sh
+
 
 # macOS
 .DS_Store
+
