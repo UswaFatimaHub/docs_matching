@@ -1,6 +1,6 @@
 import heapq
 import numpy as np
-from .db import get_documents_batch
+from .db import get_documents_batch, get_collection
 from .embeddings import encode_text
 import logging
 
@@ -10,14 +10,14 @@ def cosine_similarity(a, b):
     a, b = np.array(a), np.array(b)
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def get_top_matches(question: str, top_k: int = 5, batch_size: int = 1000):
+def get_top_matches(question: str, top_k: int = 5, batch_size: int = 1000, collection = None):
     logger.info(f"🔍 Matching question: {question}")
     question_embedding = encode_text(question)
     heap = []  # Min-heap to store top_k matches
     offset = 0
 
     while True:
-        batch = get_documents_batch(skip=offset, limit=batch_size)
+        batch = get_documents_batch(collection=collection, skip=offset, limit=batch_size)
         logger.debug(f"Fetched {len(batch)} documents from database")
         if not batch:
             break

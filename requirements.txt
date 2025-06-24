@@ -6,3 +6,6 @@ python-dotenv
 gunicorn
 apscheduler
 beautifulsoup4 
+pytest
+pytest-django
+mongomock

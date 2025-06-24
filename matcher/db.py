@@ -1,19 +1,23 @@
 from pymongo import MongoClient
 from bson import ObjectId
 import logging
-
 from env_config import envconfig
 
 envvars = envconfig()
 logger = logging.getLogger(__name__)
 
+# client = MongoClient(envvars.MONGO_URI)
+# db = client[envvars.MONGO_DB]
+# collection = db[envvars.MONGO_COLLECTION]
+
+def get_collection():
+    client = MongoClient(envvars.MONGO_URI)
+    db = client[envvars.MONGO_DB]
+    return db[envvars.MONGO_COLLECTION]
 
 
-client = MongoClient(envvars.MONGO_URI)
-db = client[envvars.MONGO_DB]
-collection = db[envvars.MONGO_COLLECTION]
 
-def get_documents_without_embeddings_batch(skip: int = 0, limit: int = 1000):
+def get_documents_without_embeddings_batch(collection, skip: int = 0, limit: int = 1000):
     logger.info(f"Fetching documents without embeddings, skip: {skip}, limit: {limit}")
     return list(collection.find(
         {
@@ -22,17 +26,13 @@ def get_documents_without_embeddings_batch(skip: int = 0, limit: int = 1000):
         }
     ).skip(skip).limit(limit))
 
-def get_documents_batch(skip: int = 0, limit: int = 10):
+def get_documents_batch(collection, skip: int = 0, limit: int = 10):
     logger.info(f"Fetching documents, skip: {skip}, limit: {limit}")
     return list(collection.find(
         {"embedding": {"$exists": True}}
     ).skip(skip).limit(limit))
 
-def insert_document(document, embedding):
-    logger.info(f"Inserting embedding for document with title: {document.get('title', 'No Title')}")
-    collection.insert_one({"document": document, "embedding": embedding})
-
-def update_embedding_for_doc(doc_id, embedding):
+def update_embedding_for_doc(collection, doc_id, embedding):
     logger.info(f"Updating embedding for document ID: {doc_id}")
     collection.update_one(
         {"_id": ObjectId(doc_id)},
