@@ -7,9 +7,9 @@ mock_embedding = np.random.rand(768).tolist()
 def test_db_filters_docs_without_embeddings(mock_mongo):
 
     mock_mongo.insert_many([
-        {"title": "A", "embedding": mock_embedding, "status": "Published"},
-        {"title": "B", "status": "Published"},
-        {"title": "C", "status": "Draft"}
+        {"title": "A", "embedding": mock_embedding},
+        {"title": "B"},
+        {"title": "C", "embedding_failed": True}
     ])
     result = get_documents_without_embeddings_batch(mock_mongo)
     assert len(result) == 1

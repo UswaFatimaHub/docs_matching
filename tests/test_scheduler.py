@@ -29,5 +29,5 @@ def test_scheduler_handles_failed_embedding(monkeypatch, mock_mongo):
     run_embedding_sync(mock_mongo, batch_size=1)
 
     doc = mock_mongo.find_one()
-    print(doc)
     assert "embedding" not in doc  # Should not update due to error
+    assert doc.get("embedding_failed") is True

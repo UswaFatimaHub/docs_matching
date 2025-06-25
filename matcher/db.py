@@ -21,7 +21,8 @@ def get_documents_without_embeddings_batch(collection, skip: int = 0, limit: int
     logger.info(f"Fetching documents without embeddings, skip: {skip}, limit: {limit}")
     return list(collection.find(
         {
-            "status": "Published",
+            # "status": "Published",
+            "embedding_failed": {"$ne": True},
             "embedding": {"$exists": False}
         }
     ).skip(skip).limit(limit))
@@ -37,4 +38,10 @@ def update_embedding_for_doc(collection, doc_id, embedding):
     collection.update_one(
         {"_id": ObjectId(doc_id)},
         {"$set": {"embedding": embedding}}
+    )
+
+def mark_embedding_failed(collection, doc_id):
+    collection.update_one(
+        {"_id": doc_id},
+        {"$set": {"embedding_failed": True}}
     )

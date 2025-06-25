@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand
 from apscheduler.schedulers.blocking import BlockingScheduler
 from matcher.embeddings import encode_text
-from matcher.db import get_collection, get_documents_without_embeddings_batch, update_embedding_for_doc
+from matcher.db import get_collection, get_documents_without_embeddings_batch, update_embedding_for_doc, mark_embedding_failed
 from bs4 import BeautifulSoup
 from datetime import datetime
 import logging
@@ -15,8 +15,6 @@ def clean_html(html_text):
         return ""
     soup = BeautifulSoup(html_text, "html.parser")
     return soup.get_text(separator=" ", strip=True)
-
-
 
 # def run_embedding_sync(collection, batch_size=1000):
 #     logger.info("🌀 Starting embedding sync...")
@@ -83,6 +81,7 @@ def run_embedding_sync(collection, batch_size=1000):
                 embedding = encode_text(combined_text).tolist()
             except Exception as e:
                 logger.warning(f"❌ Failed to encode text for document {doc['_id']}: {e}")
+                mark_embedding_failed(collection, doc["_id"])
                 continue  # skip this document
 
             update_embedding_for_doc(collection, doc["_id"], embedding)
