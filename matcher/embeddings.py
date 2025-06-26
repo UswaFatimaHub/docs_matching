@@ -8,7 +8,7 @@ _model = None
 def get_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer(envvars.SENTENCE_TRANSFORMER_MODEL)
+        _model = SentenceTransformer(envvars.SENTENCE_TRANSFORMER_MODEL, device='cpu')
     return _model
 
 def encode_text(text: str):

@@ -6,15 +6,10 @@ from env_config import envconfig
 envvars = envconfig()
 logger = logging.getLogger(__name__)
 
-# client = MongoClient(envvars.MONGO_URI)
-# db = client[envvars.MONGO_DB]
-# collection = db[envvars.MONGO_COLLECTION]
-
 def get_collection():
     client = MongoClient(envvars.MONGO_URI)
     db = client[envvars.MONGO_DB]
     return db[envvars.MONGO_COLLECTION]
-
 
 
 def get_documents_without_embeddings_batch(collection, skip: int = 0, limit: int = 1000):

@@ -27,9 +27,7 @@ SECRET_KEY = 'django-insecure--4nr_t6)l0c9ox29&3c^#r%zi*ztr7u80jpvjd=-$2#hbt_*4$
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "docs-matching.onrender.com"
+    "*"
 ]
 
 
@@ -37,6 +35,8 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'matcher',
+    'rest_framework',
+    'drf_spectacular',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +44,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
